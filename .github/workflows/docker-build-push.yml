@@ -1,4 +1,5 @@
-name: Build and Push Docker Image
+
+  name: Build and Push Docker Image
   
   on:
     push:
@@ -52,4 +53,3 @@ name: Build and Push Docker Image
             labels: ${{ steps.meta.outputs.labels }}
             cache-from: type=gha
             cache-to: type=gha,mode=max
-
