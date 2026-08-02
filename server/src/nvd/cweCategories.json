@@ -1,0 +1,76 @@
+{
+  "CWE-78": "Remote Code Execution",
+  "CWE-77": "Remote Code Execution",
+  "CWE-94": "Remote Code Execution",
+  "CWE-95": "Remote Code Execution",
+  "CWE-502": "Remote Code Execution",
+  "CWE-98": "Remote Code Execution",
+  "CWE-434": "Remote Code Execution",
+
+  "CWE-269": "Privilege Escalation",
+  "CWE-266": "Privilege Escalation",
+  "CWE-250": "Privilege Escalation",
+  "CWE-273": "Privilege Escalation",
+
+  "CWE-119": "Memory Corruption",
+  "CWE-120": "Memory Corruption",
+  "CWE-121": "Memory Corruption",
+  "CWE-122": "Memory Corruption",
+  "CWE-124": "Memory Corruption",
+  "CWE-125": "Memory Corruption",
+  "CWE-787": "Memory Corruption",
+  "CWE-416": "Memory Corruption",
+  "CWE-415": "Memory Corruption",
+  "CWE-476": "Memory Corruption",
+  "CWE-190": "Memory Corruption",
+  "CWE-191": "Memory Corruption",
+  "CWE-680": "Memory Corruption",
+
+  "CWE-89": "SQL Injection",
+  "CWE-564": "SQL Injection",
+
+  "CWE-79": "Cross-Site Scripting (XSS)",
+
+  "CWE-352": "CSRF",
+
+  "CWE-22": "Path Traversal",
+  "CWE-23": "Path Traversal",
+  "CWE-36": "Path Traversal",
+
+  "CWE-287": "Authentication / Access Control Bypass",
+  "CWE-306": "Authentication / Access Control Bypass",
+  "CWE-862": "Authentication / Access Control Bypass",
+  "CWE-863": "Authentication / Access Control Bypass",
+  "CWE-284": "Authentication / Access Control Bypass",
+  "CWE-290": "Authentication / Access Control Bypass",
+  "CWE-347": "Authentication / Access Control Bypass",
+
+  "CWE-200": "Information Disclosure",
+  "CWE-209": "Information Disclosure",
+  "CWE-532": "Information Disclosure",
+  "CWE-311": "Information Disclosure",
+  "CWE-319": "Information Disclosure",
+
+  "CWE-400": "Denial of Service",
+  "CWE-770": "Denial of Service",
+  "CWE-835": "Denial of Service",
+  "CWE-674": "Denial of Service",
+
+  "CWE-918": "SSRF",
+
+  "CWE-611": "XXE",
+
+  "CWE-327": "Cryptographic Weakness",
+  "CWE-326": "Cryptographic Weakness",
+  "CWE-330": "Cryptographic Weakness",
+  "CWE-338": "Cryptographic Weakness",
+
+  "CWE-362": "Race Condition",
+
+  "CWE-798": "Hardcoded Credentials",
+
+  "CWE-732": "Improper Permission Assignment",
+
+  "CWE-20": "Improper Input Validation",
+  "CWE-129": "Improper Input Validation"
+}

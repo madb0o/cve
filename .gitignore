@@ -1,0 +1,8 @@
+node_modules/
+dist/
+server/data/*.db
+server/data/*.db-*
+.env
+*.log
+.DS_Store
+.claude/

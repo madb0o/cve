@@ -1,0 +1,15 @@
+services:
+  cve-dashboard:
+    build: .
+    ports:
+      - '4000:4000'
+    environment:
+      - NVD_API_KEY=${NVD_API_KEY}
+      - PORT=4000
+      - SYNC_INTERVAL_HOURS=${SYNC_INTERVAL_HOURS:-6}
+    volumes:
+      - cve-data:/app/server/data
+    restart: unless-stopped
+
+volumes:
+  cve-data:
