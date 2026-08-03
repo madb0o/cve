@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cve-dashboard
+  namespace: cve-dashboard
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cve-dashboard
+  template:
+    metadata:
+      labels:
+        app: cve-dashboard
+    spec:
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "1"
+      containers:
+      - name: cve-dashboard
+        image: ghcr.io/madb0o/cve:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: PORT
+          value: "4000"
+        - name: SYNC_INTERVAL_HOURS
+          value: "6"
+        - name: NVD_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cve-secrets
+              key: NVD_API_KEY
+        volumeMounts:
+        - name: data
+          mountPath: /app/server/data
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /api/meta
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/meta
+            port: 4000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: cve-data
