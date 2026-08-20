@@ -10,10 +10,11 @@ export interface FilterState {
   to?: string;
   severities: string[];
   types: string[];
+  includeRejected: boolean;
 }
 
 export function defaultFilterState(): FilterState {
-  return { preset: 'all', ...presetToRange('all'), severities: [], types: [] };
+  return { preset: 'all', ...presetToRange('all'), severities: [], types: [], includeRejected: false };
 }
 
 interface FilterBarProps {
@@ -162,7 +163,19 @@ export function FilterBar({ state, onChange, availableSeverities, availableTypes
         )}
       </div>
 
-      {(state.severities.length > 0 || state.types.length > 0 || state.preset !== 'all') && (
+      <button
+        type="button"
+        className={`${styles.trigger} ${state.includeRejected ? styles.toggleActive : ''}`}
+        aria-pressed={state.includeRejected}
+        onClick={() => onChange({ ...state, includeRejected: !state.includeRejected })}
+      >
+        Include rejected
+      </button>
+
+      {(state.severities.length > 0 ||
+        state.types.length > 0 ||
+        state.preset !== 'all' ||
+        state.includeRejected) && (
         <button type="button" className={styles.trigger} onClick={() => onChange(defaultFilterState())}>
           Clear filters
         </button>

@@ -95,6 +95,12 @@
   align-items: center;
 }
 
+.toggleActive {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: white;
+}
+
 .footer input {
   font-family: inherit;
   font-size: 12px;

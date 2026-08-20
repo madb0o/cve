@@ -10,6 +10,7 @@ export interface FilterParams {
   to?: string;
   severity?: string;
   type?: string;
+  includeRejected?: boolean;
 }
 
 export function filterParamsFromRequest(req: Request): FilterParams {
@@ -18,6 +19,7 @@ export function filterParamsFromRequest(req: Request): FilterParams {
     to: qStr(req.query.to),
     severity: qStr(req.query.severity),
     type: qStr(req.query.type),
+    includeRejected: qStr(req.query.includeRejected) === 'true',
   };
 }
 
@@ -26,6 +28,9 @@ export function buildWhere(q: FilterParams): { clause: string; params: unknown[]
   const conditions: string[] = [];
   const params: unknown[] = [];
 
+  if (!q.includeRejected) {
+    conditions.push("(vuln_status IS NULL OR vuln_status != 'Rejected')");
+  }
   if (q.from) {
     conditions.push('published >= ?');
     params.push(q.from);

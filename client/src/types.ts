@@ -68,9 +68,20 @@ export interface Meta {
   syncInProgress: boolean;
 }
 
+export interface MonthlyMatrixRow {
+  year: number;
+  month: number; // 1-12
+  count: number;
+}
+
+export interface MonthlyMatrixResponse {
+  rows: MonthlyMatrixRow[];
+}
+
 export interface Filters {
   from?: string;
   to?: string;
   severity?: string[];
   type?: string[];
+  includeRejected?: boolean;
 }

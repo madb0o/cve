@@ -3,6 +3,7 @@ import type {
   Filters,
   Granularity,
   Meta,
+  MonthlyMatrixResponse,
   SeverityRow,
   SummaryStats,
   TrendResponse,
@@ -30,7 +31,13 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 function filterQuery(filters: Filters): Record<string, string | string[] | undefined> {
-  return { from: filters.from, to: filters.to, severity: filters.severity, type: filters.type };
+  return {
+    from: filters.from,
+    to: filters.to,
+    severity: filters.severity,
+    type: filters.type,
+    includeRejected: filters.includeRejected ? 'true' : undefined,
+  };
 }
 
 export function fetchSummary(filters: Filters): Promise<SummaryStats> {
@@ -53,6 +60,18 @@ export function fetchBySeverity(filters: Filters): Promise<{ rows: SeverityRow[]
 
 export function fetchByType(filters: Filters, limit = 15): Promise<{ rows: TypeRow[]; truncated: boolean }> {
   return getJson(`/api/stats/by-type${toQuery({ ...filterQuery(filters), limit })}`);
+}
+
+export function fetchByMonth(
+  filters: Pick<Filters, 'severity' | 'type' | 'includeRejected'>
+): Promise<MonthlyMatrixResponse> {
+  return getJson(
+    `/api/stats/by-month${toQuery({
+      severity: filters.severity,
+      type: filters.type,
+      includeRejected: filters.includeRejected ? 'true' : undefined,
+    })}`
+  );
 }
 
 export function fetchCves(

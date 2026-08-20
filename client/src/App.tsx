@@ -3,13 +3,20 @@ import styles from './App.module.css';
 import { fetchMeta, fetchSummary, triggerSync } from './api';
 import { defaultFilterState, FilterBar, type FilterState } from './components/FilterBar';
 import { KpiTiles } from './components/KpiTiles';
+import { SeasonalComparisonChart } from './components/SeasonalComparisonChart';
 import { SeverityChart } from './components/SeverityChart';
 import { TrendChart } from './components/TrendChart';
 import { TypeChart } from './components/TypeChart';
 import type { Filters, Meta, SummaryStats } from './types';
 
 function toApiFilters(state: FilterState): Filters {
-  return { from: state.from, to: state.to, severity: state.severities, type: state.types };
+  return {
+    from: state.from,
+    to: state.to,
+    severity: state.severities,
+    type: state.types,
+    includeRejected: state.includeRejected,
+  };
 }
 
 function formatSyncTime(iso: string | null): string {
@@ -77,6 +84,10 @@ export default function App() {
 
       <div className={styles.section}>
         <TrendChart filters={filters} />
+      </div>
+
+      <div className={styles.section}>
+        <SeasonalComparisonChart filters={filters} />
       </div>
 
       <div className={styles.chartsRow}>

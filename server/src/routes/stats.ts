@@ -31,6 +31,7 @@ statsRouter.get('/summary', (req, res) => {
   const { clause: baseClause, params: baseParams } = buildWhere({
     severity: filters.severity,
     type: filters.type,
+    includeRejected: filters.includeRejected,
   });
 
   const withDate = (extraClause: string, extraParams: unknown[]) => {
@@ -181,4 +182,39 @@ statsRouter.get('/by-type', (req, res) => {
   top.sort((a, b) => b.count - a.count);
 
   res.json({ rows: top, truncated: rest.length > 0 });
+});
+
+statsRouter.get('/by-month', (req, res) => {
+  const filters = filterParamsFromRequest(req);
+  const { clause: baseClause, params: baseParams } = buildWhere({
+    severity: filters.severity,
+    type: filters.type,
+    includeRejected: filters.includeRejected,
+  });
+
+  const yearsParam = qStr(req.query.years);
+  let clause = baseClause;
+  const params = [...baseParams];
+  if (yearsParam) {
+    const years = yearsParam
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (years.length) {
+      const cond = `strftime('%Y', published) IN (${years.map(() => '?').join(',')})`;
+      clause = clause ? `${clause} AND ${cond}` : `WHERE ${cond}`;
+      params.push(...years);
+    }
+  }
+
+  const rows = db
+    .prepare(
+      `SELECT strftime('%Y', published) as year, strftime('%m', published) as month, COUNT(*) as count
+       FROM cves ${clause}
+       GROUP BY year, month
+       ORDER BY year ASC, month ASC`
+    )
+    .all(...(params as never[])) as { year: string; month: string; count: number }[];
+
+  res.json({ rows: rows.map((r) => ({ year: Number(r.year), month: Number(r.month), count: r.count })) });
 });

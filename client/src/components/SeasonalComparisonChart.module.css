@@ -1,0 +1,66 @@
+.yearChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px 10px;
+}
+
+.yearChip {
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.yearChip:hover {
+  background: color-mix(in srgb, var(--surface-1) 85%, var(--text-primary) 15%);
+}
+
+.yearChipActive {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: white;
+}
+
+.heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 4px 12px;
+  overflow-x: auto;
+}
+
+.heatmapHeaderRow,
+.heatmapRow {
+  display: grid;
+  grid-template-columns: 48px repeat(12, minmax(36px, 1fr));
+  gap: 2px;
+  align-items: center;
+}
+
+.heatmapYearLabel {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: right;
+  padding-right: 6px;
+}
+
+.heatmapColLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.heatmapCell {
+  height: 30px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
