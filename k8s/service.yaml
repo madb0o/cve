@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cve-dashboard
+  namespace: cve-dashboard
+spec:
+  type: ClusterIP
+  selector:
+    app: cve-dashboard
+  ports:
+  - port: 80
+    targetPort: 4000
