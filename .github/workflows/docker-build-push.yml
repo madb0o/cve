@@ -4,6 +4,12 @@
   on:
     push:
       branches: [main]
+      # k8s/kustomization.yaml is the Image Updater write-back target - without
+      # this, its own commits re-trigger a rebuild, which produces a new
+      # (non-reproducible) digest, which Image Updater then writes back again,
+      # forever.
+      paths-ignore:
+        - 'k8s/**'
     pull_request:
       branches: [main]
 
