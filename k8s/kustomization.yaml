@@ -9,4 +9,4 @@ resources:
 images:
   - name: ghcr.io/madb0o/cve
     newTag: latest
-    digest: sha256:3766d01d5022b8f73ad29ab984df417ef390837f49012ad01d7631e20f1d662e
+    digest: sha256:3a7fec18a85c57dbc2d27517bdb2fe654c5339f14ecfd689839469c2a9508c79
