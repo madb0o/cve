@@ -50,12 +50,16 @@ spec:
             port: 4000
           initialDelaySeconds: 5
           periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
         livenessProbe:
           httpGet:
             path: /api/meta
             port: 4000
           initialDelaySeconds: 15
           periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 5
       volumes:
       - name: data
         persistentVolumeClaim:

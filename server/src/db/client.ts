@@ -41,29 +41,41 @@ const upsertStmt = db.prepare(`
     raw_json=excluded.raw_json
 `);
 
-export function upsertCves(records: ClassifiedCve[]): void {
+// node:sqlite's DatabaseSync API is synchronous, so a single BEGIN..COMMIT
+// covering an entire NVD page (up to ~2000 records) blocks the event loop —
+// and with it every in-flight HTTP request, including the liveness probe —
+// for the whole write. Committing in smaller chunks and yielding to the
+// event loop between them keeps any one blocking stretch short enough for
+// the server to keep serving requests during a large sync.
+const UPSERT_CHUNK_SIZE = 200;
+
+export async function upsertCves(records: ClassifiedCve[]): Promise<void> {
   if (records.length === 0) return;
-  db.exec('BEGIN');
-  try {
-    for (const c of records) {
-      upsertStmt.run(
-        c.id,
-        c.published,
-        c.lastModified,
-        c.vulnStatus,
-        c.description,
-        c.cvssVersion,
-        c.cvssScore,
-        c.severity,
-        JSON.stringify(c.cweIds),
-        c.vulnType,
-        JSON.stringify(c.raw)
-      );
+  for (let i = 0; i < records.length; i += UPSERT_CHUNK_SIZE) {
+    const chunk = records.slice(i, i + UPSERT_CHUNK_SIZE);
+    db.exec('BEGIN');
+    try {
+      for (const c of chunk) {
+        upsertStmt.run(
+          c.id,
+          c.published,
+          c.lastModified,
+          c.vulnStatus,
+          c.description,
+          c.cvssVersion,
+          c.cvssScore,
+          c.severity,
+          JSON.stringify(c.cweIds),
+          c.vulnType,
+          JSON.stringify(c.raw)
+        );
+      }
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      throw err;
     }
-    db.exec('COMMIT');
-  } catch (err) {
-    db.exec('ROLLBACK');
-    throw err;
+    await new Promise((resolve) => setImmediate(resolve));
   }
 }
 

@@ -29,25 +29,58 @@ export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [summary, setSummary] = useState<SummaryStats | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retryTick, setRetryTick] = useState(0);
 
   const filters = useMemo(() => toApiFilters(filterState), [filterState]);
 
   useEffect(() => {
-    fetchMeta().then(setMeta);
-  }, [syncing]);
+    fetchMeta()
+      .then((m) => {
+        setMeta(m);
+        setLoadError(false);
+      })
+      .catch(() => setLoadError(true));
+  }, [syncing, retryTick]);
 
   useEffect(() => {
-    fetchSummary(filters).then(setSummary);
-  }, [filters]);
+    fetchSummary(filters)
+      .then((s) => {
+        setSummary(s);
+        setLoadError(false);
+      })
+      .catch(() => setLoadError(true));
+  }, [filters, retryTick]);
+
+  // getJson already retries a couple of times internally; this covers the
+  // longer outage (e.g. a pod restart) that outlasts those retries, so the
+  // dashboard recovers on its own instead of needing a manual "Sync now".
+  useEffect(() => {
+    if (!loadError) return;
+    const timer = setTimeout(() => setRetryTick((t) => t + 1), 8000);
+    return () => clearTimeout(timer);
+  }, [loadError, retryTick]);
 
   async function handleSync() {
     setSyncing(true);
     try {
       await triggerSync();
+    } catch {
+      setLoadError(true);
     } finally {
       setSyncing(false);
-      fetchMeta().then(setMeta);
-      fetchSummary(filters).then(setSummary);
+      fetchMeta()
+        .then((m) => {
+          setMeta(m);
+          setLoadError(false);
+        })
+        .catch(() => setLoadError(true));
+      fetchSummary(filters)
+        .then((s) => {
+          setSummary(s);
+          setLoadError(false);
+        })
+        .catch(() => setLoadError(true));
     }
   }
 
@@ -64,6 +97,7 @@ export default function App() {
           </p>
         </div>
         <div className={styles.syncRow}>
+          {loadError && <span className={styles.syncError}>Couldn't reach the server — retrying…</span>}
           <span>Last synced: {formatSyncTime(meta?.lastIncrementalSync ?? null)}</span>
           <button className={styles.syncButton} onClick={handleSync} disabled={syncing || meta?.syncInProgress}>
             {syncing || meta?.syncInProgress ? 'Syncing…' : 'Sync now'}

@@ -34,7 +34,7 @@ export interface SyncProgress {
 async function syncWindow(
   params: { start: string; end: string },
   dateField: 'pub' | 'lastMod',
-  onRecords: (records: NvdCveRecord[]) => void
+  onRecords: (records: NvdCveRecord[]) => Promise<void>
 ): Promise<number> {
   const baseParams: Record<string, string> =
     dateField === 'pub'
@@ -43,7 +43,7 @@ async function syncWindow(
 
   let count = 0;
   for await (const page of fetchAllPages(baseParams)) {
-    onRecords(page);
+    await onRecords(page);
     count += page.length;
   }
   return count;
@@ -71,9 +71,9 @@ export async function backfill(
     await syncWindow(
       { start: formatNvdDate(windowStart), end: formatNvdDate(windowEnd) },
       'pub',
-      (records) => {
+      async (records) => {
         const classified = records.map((r) => classifyCve(r as never));
-        upsertCves(classified);
+        await upsertCves(classified);
         recordsInWindow += records.length;
       }
     );
@@ -100,9 +100,9 @@ export async function incrementalSync(): Promise<{ recordsSynced: number }> {
     total += await syncWindow(
       { start: formatNvdDate(windowStart), end: formatNvdDate(windowEnd) },
       'lastMod',
-      (records) => {
+      async (records) => {
         const classified = records.map((r) => classifyCve(r as never));
-        upsertCves(classified);
+        await upsertCves(classified);
       }
     );
   }

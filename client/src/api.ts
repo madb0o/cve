@@ -24,10 +24,23 @@ function toQuery(params: Record<string, string | string[] | number | undefined>)
   return qs ? `?${qs}` : '';
 }
 
+// The server can briefly stop responding mid-sync (large NVD batches block
+// its event loop for short stretches) or during a pod restart. A couple of
+// short retries absorb that without the user having to notice and click
+// "Sync now" to recover.
+const FETCH_RETRY_DELAYS_MS = [500, 2000];
+
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`Request failed: ${res.status} ${path}`);
-  return res.json() as Promise<T>;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(`Request failed: ${res.status} ${path}`);
+      return (await res.json()) as T;
+    } catch (err) {
+      if (attempt >= FETCH_RETRY_DELAYS_MS.length) throw err;
+      await new Promise((resolve) => setTimeout(resolve, FETCH_RETRY_DELAYS_MS[attempt]));
+    }
+  }
 }
 
 function filterQuery(filters: Filters): Record<string, string | string[] | undefined> {

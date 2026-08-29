@@ -53,6 +53,21 @@
   cursor: default;
 }
 
+.syncError {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--status-warning);
+}
+
+.syncError::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-warning);
+}
+
 .section {
   margin-top: 20px;
 }
