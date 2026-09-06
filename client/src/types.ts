@@ -83,5 +83,16 @@ export interface Filters {
   to?: string;
   severity?: string[];
   type?: string[];
+  vendor?: string;
   includeRejected?: boolean;
+}
+
+export interface VendorOption {
+  slug: string;
+  label: string;
+  count: number;
+}
+
+export interface VendorSearchResponse {
+  vendors: VendorOption[];
 }

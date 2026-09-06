@@ -31,6 +31,7 @@ statsRouter.get('/summary', (req, res) => {
   const { clause: baseClause, params: baseParams } = buildWhere({
     severity: filters.severity,
     type: filters.type,
+    vendor: filters.vendor,
     includeRejected: filters.includeRejected,
   });
 
@@ -189,6 +190,7 @@ statsRouter.get('/by-month', (req, res) => {
   const { clause: baseClause, params: baseParams } = buildWhere({
     severity: filters.severity,
     type: filters.type,
+    vendor: filters.vendor,
     includeRejected: filters.includeRejected,
   });
 

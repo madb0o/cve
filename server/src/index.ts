@@ -7,7 +7,9 @@ import { statsRouter } from './routes/stats.js';
 import { cvesRouter } from './routes/cves.js';
 import { metaRouter } from './routes/meta.js';
 import { syncRouter } from './routes/sync.js';
+import { vendorsRouter } from './routes/vendors.js';
 import { startScheduler } from './scheduler.js';
+import { backfillVendorsIfNeeded } from './db/backfillVendors.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 4000);
@@ -21,6 +23,7 @@ app.use('/api/stats', statsRouter);
 app.use('/api/cves', cvesRouter);
 app.use('/api/meta', metaRouter);
 app.use('/api/sync', syncRouter);
+app.use('/api/vendors', vendorsRouter);
 
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
 app.use(express.static(clientDist));
@@ -37,4 +40,5 @@ app.get('*', (req, res, next) => {
 app.listen(PORT, () => {
   console.log(`CVE dashboard server listening on http://localhost:${PORT}`);
   startScheduler(SYNC_INTERVAL_HOURS);
+  backfillVendorsIfNeeded().catch((err) => console.error('[vendor-backfill] failed:', err));
 });

@@ -18,6 +18,17 @@ interface CvssMetric {
   baseSeverity?: string;
 }
 
+interface CpeMatch {
+  criteria?: string;
+}
+
+interface ConfigNode {
+  cpeMatch?: CpeMatch[];
+  // NVD's schema allows nested AND/OR groups here, though none have been
+  // observed in practice yet — handled recursively just in case.
+  children?: ConfigNode[];
+}
+
 interface NvdCveRecord {
   id: string;
   published: string;
@@ -31,6 +42,7 @@ interface NvdCveRecord {
     cvssMetricV2?: CvssMetric[];
   };
   weaknesses?: { description?: { lang: string; value: string }[] }[];
+  configurations?: { nodes?: ConfigNode[] }[];
 }
 
 function bucketV2Severity(score: number): string {
@@ -88,6 +100,33 @@ function resolveVulnType(cweIds: string[]): string {
   return 'Other';
 }
 
+/** CPE 2.3 URI: cpe:2.3:{part}:{vendor}:{product}:... — vendor is field index 3. */
+function vendorFromCriteria(criteria: string): string | null {
+  const parts = criteria.split(':');
+  const vendor = parts[3];
+  return vendor && vendor !== '*' && vendor !== '-' ? vendor : null;
+}
+
+function collectVendorsFromNodes(nodes: ConfigNode[] | undefined, out: Set<string>): void {
+  for (const node of nodes ?? []) {
+    for (const match of node.cpeMatch ?? []) {
+      if (match.criteria) {
+        const vendor = vendorFromCriteria(match.criteria);
+        if (vendor) out.add(vendor);
+      }
+    }
+    collectVendorsFromNodes(node.children, out);
+  }
+}
+
+function resolveVendors(record: NvdCveRecord): string[] {
+  const vendors = new Set<string>();
+  for (const config of record.configurations ?? []) {
+    collectVendorsFromNodes(config.nodes, vendors);
+  }
+  return [...vendors];
+}
+
 export function classifyCve(record: NvdCveRecord): ClassifiedCve {
   const { version, score, severity } = resolveCvss(record);
   const cweIds = resolveCweIds(record);
@@ -105,6 +144,7 @@ export function classifyCve(record: NvdCveRecord): ClassifiedCve {
     severity: severity ? severity.toUpperCase() : null,
     cweIds,
     vulnType: resolveVulnType(cweIds),
+    vendors: resolveVendors(record),
     raw: record,
   };
 }

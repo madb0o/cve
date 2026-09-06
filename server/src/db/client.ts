@@ -22,6 +22,7 @@ export interface ClassifiedCve {
   severity: string | null;
   cweIds: string[];
   vulnType: string;
+  vendors: string[];
   raw: unknown;
 }
 
@@ -40,6 +41,11 @@ const upsertStmt = db.prepare(`
     vuln_type=excluded.vuln_type,
     raw_json=excluded.raw_json
 `);
+
+const deleteVendorsStmt = db.prepare('DELETE FROM cve_vendors WHERE cve_id = ?');
+const insertVendorStmt = db.prepare(
+  'INSERT INTO cve_vendors (cve_id, vendor) VALUES (?, ?) ON CONFLICT(cve_id, vendor) DO NOTHING'
+);
 
 // node:sqlite's DatabaseSync API is synchronous, so a single BEGIN..COMMIT
 // covering an entire NVD page (up to ~2000 records) blocks the event loop —
@@ -69,6 +75,10 @@ export async function upsertCves(records: ClassifiedCve[]): Promise<void> {
           c.vulnType,
           JSON.stringify(c.raw)
         );
+        deleteVendorsStmt.run(c.id);
+        for (const vendor of c.vendors) {
+          insertVendorStmt.run(c.id, vendor);
+        }
       }
       db.exec('COMMIT');
     } catch (err) {

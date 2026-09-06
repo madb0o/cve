@@ -21,3 +21,15 @@ CREATE TABLE IF NOT EXISTS sync_state (
   key TEXT PRIMARY KEY,
   value TEXT
 );
+
+-- One row per (cve, vendor) pair, derived from CPE match strings in each
+-- CVE's raw_json configurations. A CVE can name multiple vendors, so this
+-- is a separate table rather than a column on cves, joined via subquery in
+-- queryFilters.ts.
+CREATE TABLE IF NOT EXISTS cve_vendors (
+  cve_id TEXT NOT NULL,
+  vendor TEXT NOT NULL,
+  PRIMARY KEY (cve_id, vendor)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cve_vendors_vendor ON cve_vendors(vendor);

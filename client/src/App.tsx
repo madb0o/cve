@@ -15,6 +15,7 @@ function toApiFilters(state: FilterState): Filters {
     to: state.to,
     severity: state.severities,
     type: state.types,
+    vendor: state.vendor,
     includeRejected: state.includeRejected,
   };
 }
@@ -94,6 +95,7 @@ export default function App() {
             {meta?.dateRange.min && (
               <> · {new Date(meta.dateRange.min).getFullYear()}–{new Date(meta.dateRange.max ?? '').getFullYear()}</>
             )}
+            {filterState.vendorLabel && <> · Showing: {filterState.vendorLabel}</>}
           </p>
         </div>
         <div className={styles.syncRow}>

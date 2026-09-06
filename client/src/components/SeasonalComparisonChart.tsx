@@ -45,7 +45,12 @@ export function SeasonalComparisonChart({ filters }: SeasonalComparisonChartProp
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetchByMonth({ severity: filters.severity, type: filters.type, includeRejected: filters.includeRejected })
+    fetchByMonth({
+      severity: filters.severity,
+      type: filters.type,
+      vendor: filters.vendor,
+      includeRejected: filters.includeRejected,
+    })
       .then((res) => {
         if (!cancelled) setRows(res.rows);
       })
@@ -56,7 +61,7 @@ export function SeasonalComparisonChart({ filters }: SeasonalComparisonChartProp
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.severity, filters.type, filters.includeRejected]);
+  }, [filters.severity, filters.type, filters.vendor, filters.includeRejected]);
 
   const matrix = useMemo(() => {
     const m = new Map<number, Map<number, number>>();

@@ -10,6 +10,7 @@ export interface FilterParams {
   to?: string;
   severity?: string;
   type?: string;
+  vendor?: string;
   includeRejected?: boolean;
 }
 
@@ -19,6 +20,7 @@ export function filterParamsFromRequest(req: Request): FilterParams {
     to: qStr(req.query.to),
     severity: qStr(req.query.severity),
     type: qStr(req.query.type),
+    vendor: qStr(req.query.vendor),
     includeRejected: qStr(req.query.includeRejected) === 'true',
   };
 }
@@ -58,6 +60,10 @@ export function buildWhere(q: FilterParams): { clause: string; params: unknown[]
       conditions.push(`vuln_type IN (${list.map(() => '?').join(',')})`);
       params.push(...list);
     }
+  }
+  if (q.vendor) {
+    conditions.push('id IN (SELECT cve_id FROM cve_vendors WHERE vendor = ?)');
+    params.push(q.vendor);
   }
 
   return {

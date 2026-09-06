@@ -8,6 +8,7 @@ import type {
   SummaryStats,
   TrendResponse,
   TypeRow,
+  VendorSearchResponse,
 } from './types';
 
 function toQuery(params: Record<string, string | string[] | number | undefined>): string {
@@ -49,6 +50,7 @@ function filterQuery(filters: Filters): Record<string, string | string[] | undef
     to: filters.to,
     severity: filters.severity,
     type: filters.type,
+    vendor: filters.vendor,
     includeRejected: filters.includeRejected ? 'true' : undefined,
   };
 }
@@ -76,15 +78,20 @@ export function fetchByType(filters: Filters, limit = 15): Promise<{ rows: TypeR
 }
 
 export function fetchByMonth(
-  filters: Pick<Filters, 'severity' | 'type' | 'includeRejected'>
+  filters: Pick<Filters, 'severity' | 'type' | 'vendor' | 'includeRejected'>
 ): Promise<MonthlyMatrixResponse> {
   return getJson(
     `/api/stats/by-month${toQuery({
       severity: filters.severity,
       type: filters.type,
+      vendor: filters.vendor,
       includeRejected: filters.includeRejected ? 'true' : undefined,
     })}`
   );
+}
+
+export function fetchVendors(q: string, limit = 20): Promise<VendorSearchResponse> {
+  return getJson(`/api/vendors${toQuery({ q, limit })}`);
 }
 
 export function fetchCves(
