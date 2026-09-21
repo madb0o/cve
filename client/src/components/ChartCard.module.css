@@ -23,7 +23,12 @@
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  /* Multiple segmented controls (granularity + group-by, or view mode +
+     month picker) share this row; without wrap they overflow the card
+     width on narrow screens instead of dropping to a new line. */
+  max-width: 100%;
 }
 
 .segButton {
@@ -35,6 +40,13 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .segButton {
+    padding: 8px 12px;
+    min-height: 36px;
+  }
 }
 
 .segButton:hover {

@@ -24,6 +24,18 @@
   cursor: pointer;
 }
 
+@media (pointer: coarse) {
+  .trigger {
+    padding: 10px 14px;
+    min-height: 40px;
+  }
+
+  .row {
+    padding: 11px 10px;
+    min-height: 40px;
+  }
+}
+
 .trigger:hover {
   background: color-mix(in srgb, var(--surface-1) 90%, var(--text-primary) 10%);
 }
@@ -38,6 +50,9 @@
   left: 0;
   z-index: 20;
   min-width: 220px;
+  /* Safety net so a panel opened near the left edge on a narrow phone
+     viewport can't push its right edge off-screen. */
+  max-width: calc(100vw - 24px);
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -91,6 +106,7 @@
   margin-top: 4px;
   padding: 8px 10px 4px;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -103,11 +119,15 @@
 
 .footer input {
   font-family: inherit;
-  font-size: 12px;
+  /* Must stay >=16px: iOS Safari auto-zooms the whole page on focus for any
+     text input under 16px, which is jarring and doesn't zoom back out. */
+  font-size: 16px;
   padding: 4px 6px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--surface-1);
   color: var(--text-primary);
-  width: 120px;
+  width: 132px;
+  min-width: 0;
+  flex: 1 1 132px;
 }

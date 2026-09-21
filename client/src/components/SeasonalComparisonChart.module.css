@@ -16,6 +16,13 @@
   cursor: pointer;
 }
 
+@media (pointer: coarse) {
+  .yearChip {
+    padding: 7px 11px;
+    min-height: 34px;
+  }
+}
+
 .yearChip:hover {
   background: color-mix(in srgb, var(--surface-1) 85%, var(--text-primary) 15%);
 }

@@ -225,8 +225,10 @@ export function FilterBar({ state, onChange, availableSeverities, availableTypes
                 width: '100%',
                 boxSizing: 'border-box',
                 fontFamily: 'inherit',
-                fontSize: 13,
-                padding: '7px 10px',
+                // Must stay >=16px: iOS Safari auto-zooms the page on focus
+                // for any text input under 16px.
+                fontSize: 16,
+                padding: '9px 10px',
                 borderRadius: 6,
                 border: '1px solid var(--border)',
                 background: 'var(--surface-1)',

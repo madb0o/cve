@@ -110,6 +110,17 @@
 
 * {
   box-sizing: border-box;
+  /* Removes the gray tap-flash and the double-tap-to-zoom delay on touch
+     browsers, so buttons/rows feel native instead of like a desktop page
+     rendered on a phone. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html {
+  /* Prevents iOS from silently bumping font sizes on rotation, which would
+     otherwise reflow the layout out of sync with the CSS breakpoints. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -118,4 +129,5 @@ body {
   color: var(--text-primary);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }

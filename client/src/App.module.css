@@ -28,6 +28,7 @@
 .syncRow {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   font-size: 12px;
   color: var(--text-muted);
@@ -42,6 +43,13 @@
   background: var(--surface-1);
   color: var(--text-primary);
   cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .syncButton {
+    padding: 9px 14px;
+    min-height: 40px;
+  }
 }
 
 .syncButton:hover {
@@ -83,5 +91,24 @@
 @media (max-width: 860px) {
   .chartsRow {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 14px 12px 48px;
+  }
+
+  .header {
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .syncRow {
+    width: 100%;
+    justify-content: space-between;
   }
 }
