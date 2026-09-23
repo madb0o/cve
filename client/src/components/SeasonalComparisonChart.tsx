@@ -33,9 +33,30 @@ function pct(current: number, baseline: number): number | null {
 
 interface SeasonalComparisonChartProps {
   filters: Filters;
+  // sync_state.backfill_cursor from /api/meta — the publish-date-driven
+  // historical backfill's progress marker. Any (year, month) at or after
+  // this hasn't been fully swept by that pass yet; its count is still being
+  // filled in incrementally (incrementalSync only pulls recently-*modified*
+  // records) and will keep growing for a while, so a delta computed against
+  // it is provisional, not final. Null once the initial backfill is done —
+  // but even then, the *current* real-world month is always treated as
+  // provisional below, since NVD keeps enriching/publishing into it live.
+  backfillCursor?: string | null;
 }
 
-export function SeasonalComparisonChart({ filters }: SeasonalComparisonChartProps) {
+/** True if `year`/`month`'s data is still actively filling in and shouldn't
+ * be trusted for a "final" delta yet — see backfillCursor's doc comment. */
+function isProvisional(year: number, month: number, backfillCursor?: string | null): boolean {
+  const now = new Date();
+  if (year === now.getUTCFullYear() && month === now.getUTCMonth() + 1) return true;
+  if (!backfillCursor) return false;
+  const cursor = new Date(backfillCursor);
+  if (Number.isNaN(cursor.getTime())) return false;
+  const monthEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+  return monthEnd >= cursor;
+}
+
+export function SeasonalComparisonChart({ filters, backfillCursor }: SeasonalComparisonChartProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('heatmap');
   const [selectedMonth, setSelectedMonth] = useState('8');
   const [rows, setRows] = useState<MonthlyMatrixRow[]>([]);
@@ -105,8 +126,14 @@ export function SeasonalComparisonChart({ filters }: SeasonalComparisonChartProp
       year: String(y),
       count: counts[i],
       delta: i > 0 ? pct(counts[i], counts[i - 1]) : null,
+      // A delta is only trustworthy when BOTH years being compared are
+      // fully synced — comparing a still-filling-in year against a settled
+      // prior year is exactly what produced a false "10% decrease" here.
+      provisional: isProvisional(y, month, backfillCursor) || (i > 0 && isProvisional(availableYears[i - 1], month, backfillCursor)),
     }));
-  }, [availableYears, matrix, selectedMonth]);
+  }, [availableYears, matrix, selectedMonth, backfillCursor]);
+
+  const selectedMonthProvisional = monthData.length > 0 && monthData[monthData.length - 1].provisional;
 
   const heatmapMax = useMemo(() => {
     let max = 0;
@@ -257,6 +284,13 @@ export function SeasonalComparisonChart({ filters }: SeasonalComparisonChartProp
                     const x = Number(props.x ?? 0);
                     const y = Number(props.y ?? 0);
                     const width = Number(props.width ?? 0);
+                    if (d.provisional) {
+                      return (
+                        <text x={x + width / 2} y={y - 8} textAnchor="middle" fontSize={11} fill="var(--text-muted)">
+                          syncing…
+                        </text>
+                      );
+                    }
                     const color = d.delta >= 0 ? 'var(--delta-up)' : 'var(--delta-down)';
                     const arrow = d.delta >= 0 ? '↑' : '↓';
                     return (
@@ -268,6 +302,12 @@ export function SeasonalComparisonChart({ filters }: SeasonalComparisonChartProp
                 />
               </BarChart>
             </ResponsiveContainer>
+            {selectedMonthProvisional && (
+              <p className={styles.provisionalNote}>
+                The most recent year here is still syncing (NVD keeps publishing/updating records for a while
+                after the fact) — its count, and any % change involving it, will keep shifting for a bit.
+              </p>
+            )}
           </div>
         )}
       </div>

@@ -123,7 +123,7 @@ export default function App() {
       </div>
 
       <div className={styles.section}>
-        <SeasonalComparisonChart filters={filters} />
+        <SeasonalComparisonChart filters={filters} backfillCursor={meta?.backfillCursor ?? null} />
       </div>
 
       <div className={styles.chartsRow}>

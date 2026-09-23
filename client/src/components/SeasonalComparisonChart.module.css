@@ -71,3 +71,9 @@
   font-size: 10px;
   font-variant-numeric: tabular-nums;
 }
+
+.provisionalNote {
+  margin: 4px 4px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
